@@ -13,18 +13,24 @@
       background: url("bgsmall.avif");
     }
 
-    @media (max-width: 1600px) {
+    @media (min-width: 1600px) {
       html {
         background: url("bgmedium.webp");
         background: url("bgmedium.avif");
       }
     }
 
-    @media (max-width: 2400px) {
+    @media (min-width: 2400px) {
       html {
         background: url("bglarge.webp");
         background: url("bglarge.avif");
       }
+    }
+
+    html {
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
     }
   </style>
 </head>
