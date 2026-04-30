@@ -285,7 +285,7 @@
           try {
             if (Res.OK) {
               var Data = JSON.parse(Res.Body)
-              document.write(JSON.stringify(Data))
+              alert(JSON.stringify(Data))
               FetchStatus[TextProp] = "Fetched"
             } else {
               FetchStatus[TextProp] = "Fetched with error status " + Res.Status + (Res.StatusText ? " (" + Res.StatusText + ")" : "")
