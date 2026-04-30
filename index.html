@@ -57,6 +57,9 @@
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 20px;
       max-width: 1600px;
+      margin: 10px auto;
+      padding: 10px;
+      box-sizing: border-box;
       background-image: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.15));
     }
 
@@ -76,9 +79,134 @@
       text-align: center;
     }
 
+    .SiteButton {
+      appearance: none;
+      border: 1px solid black;
+      color: white;
+      background-color: #aaaaaa;
+      background-color: rgba(255, 255, 255, 0.25);
+      border-radius: 20px;
+      overflow: hidden;
+      padding: 10px;
+      box-sizing: border-box;
+      transition: all 0.05s ease-out;
+    }
+
+    .SiteButton:hover,
+    .SiteButton:focus-visible {
+      background-color: #888888;
+      background-color: rgba(175, 175, 175, 1);
+    }
+
+    .SiteButton:focus-visible {
+      transition: none;
+    }
+
+    .SiteButton:active {
+      background-color: #666666;
+      background-color: rgba(145, 145, 145, 1);
+    }
+
+    .SiteButton img {
+      border-radius: 20px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .SiteButton {
+        border-color: white;
+        background-color: #555555;
+        background-color: rgba(0, 0, 0, 0.25);
+      }
+
+      .SiteButton:hover,
+      .SiteButton:focus-visible {
+        background-color: #777777;
+        background-color: rgba(80, 80, 80, 1);
+      }
+
+      .SiteButton:active {
+        background-color: #999999;
+        background-color: rgba(110, 110, 110, 1);
+      }
+    }
+
+    .SiteButton[disabled] {
+      border-color: gray;
+      color: gray;
+    }
+
+    .SiteButton[disabled] img {
+      filter: grayscale();
+    }
+
     .SiteButton p {
       margin: 5px 0;
       font-size: 24px;
+    }
+
+    .SiteButton .SiteName {
+      font-weight: bold;
+    }
+
+    .SiteButton .SiteStatus {
+      font-size: 20px;
+      margin-bottom: 0;
+    }
+
+    #Footer,
+    #Footer img {
+      vertical-align: middle;
+      font-weight: bold;
+    }
+
+    .Bold {
+      font-weight: bold;
+    }
+
+    #FetchStatus {
+      margin-bottom: 0;
+    }
+
+    .Red {
+      color: red;
+    }
+
+    .Yellow {
+      color: yellow;
+    }
+
+    .BgRed {
+      background-color: red;
+    }
+
+    .BgYellow {
+      background-color: yellow;
+    }
+
+    .BgLime {
+      background-color: lime;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .Red {
+        color: #aa0000;
+      }
+
+      .Yellow {
+        color: #aaaa00;
+      }
+
+      .BgRed {
+        background-color: #aa0000;
+      }
+
+      .BgYellow {
+        background-color: #aaaa00;
+      }
+
+      .BgLime {
+        background-color: #00aa00;
+      }
     }
   </style>
 </head>
@@ -89,13 +217,106 @@
     <p>The page to access my local websites via temporary URLs.</p>
   </div>
   <div class="Section" id="Websites" role="main">
-    <button class="SiteButton">
-      <img src="TheTrigonsSite.jpg">
-      <p>The Trigons' Site</p>
-      <p class="SiteStatus">Loading...</p>
+    <button class="SiteButton" disabled>
+      <img src="TheTrigonsSite.jpg" width="250" height="156">
+      <p class="SiteName">The Trigons' Site</p>
+      <p class="SiteStatus">Offline</p>
     </button>
+    <p><span class="Bold">Status:</span> <span id="FetchStatus">Fetching...</span></p>
   </div>
-  <div class="Section" role="contentinfo" id="Footer">(C) Triazler 2026</div>
+  <div class="Section" role="contentinfo" id="Footer"><img src="favicon.ico"> (C) Triazler 2026</div>
+  <script>
+    var Websites = document.getElementById("Websites")
+    var FetchStatus = document.getElementById("FetchStatus")
+
+    var ReqMode = window.fetch ? "Fetch" : (window.XMLHttpRequest ? "XHR" : null)
+    var TextProp = typeof document.body.textContent === "string" ? "textContent" : "innerText"
+    var FetchingLinks = false
+
+    function NewHttpReq(URL, Callback) {
+      try {
+        if (ReqMode === "Fetch") {
+          fetch(URL).then(function (Res) {
+            Res.text().then(function (Body) {
+              Callback(true, { "Body": Body, "Status": Res.status, "StatusText": Res.statusText, "OK": Res.ok })
+            })["catch"](function (E) {
+              Callback(true, { "Body": "", "Status": Res.status, "StatusText": Res.statusText, "OK": Res.ok })
+            })
+          })["catch"](function (E) {
+            Callback(false, { "Err": E, "ErrType": 1 })
+          })
+        } else if (ReqMode === "XHR") {
+          var XHR = new XMLHttpRequest()
+          XHR.open("GET", URL, true)
+          XHR.onreadystatechange = function () {
+            if (XHR.readyState === 4) {
+              if (XHR.status >= 200 && XHR.status < 600) {
+                Callback(true, { "Body": XHR.responseText, "Status": XHR.status, "StatusText": XHR.statusText, "OK": XHR.status >= 200 && XHR.status < 400 })
+              } else {
+                Callback(false, { "ErrType": 1, "Err": XHR.status + (XHR.statusText ? "(" + XHR.statusText + ")" : "") })
+              }
+            }
+          }
+        } else {
+          Callback(false, { "ErrType": 3 })
+          return false
+        }
+      } catch (E) {
+        Callback(false, { "Err": E, "ErrType": 2 })
+      }
+    }
+
+    function FetchLinks() {
+      if (FetchingLinks) return;
+      var URL = "https://firestore.googleapis.com/v1/projects/cloudflare-tunnel-links/databases/(default)/documents/Links/Links"
+
+      FetchingLinks = true
+      FetchStatus[TextProp] = "Fetching..."
+      FetchStatus.className = ""
+
+      function Complete(Fetched, Res) {
+        var ErrTypeData = {
+          "1": {"Class": "Red", "Msg": "Failed to connect."},
+          "2": {"Class": "Red", "Msg": "Failed to update because of an internal error."},
+          "3": {"Class": "Yellow", "Msg": "Your browser does not support making HTTP requests."}
+        }
+
+        if (Fetched) {
+          try {
+            if (Res.OK) {
+              var Data = JSON.parse(Res.Body)
+              document.write(JSON.stringify(Data))
+              FetchStatus[TextProp] = "Fetched"
+            } else {
+              FetchStatus[TextProp] = "Fetched with error status " + Res.Status + (Res.StatusText ? " (" + Res.StatusText + ")" : "")
+            }
+          } catch (E) {
+            Complete(false, {"ErrType": 2, "Err": E})
+          }
+        } else if (typeof Res === "object") {
+          var ErrData = ErrTypeData[Res["ErrType"].toString()]
+          FetchStatus[TextProp] = (ErrData.Msg || "Failed to Fetch.") + (Res.Err ? " (" + Res.Err + ")" : "")
+          FetchStatus.className = ErrData.Class || ""
+
+          if (Res["ErrType"] === 1) {
+            setTimeout(FetchLinks, 5000)
+          }
+        } else {
+          FetchStatus[TextProp] = "Failed to Fetch."
+          FetchStatus.className = ""
+        }
+
+        FetchingLinks = false
+      }
+
+      NewHttpReq(URL, Complete)
+    }
+
+    if (ReqMode) {
+      FetchLinks()
+      setInterval(FetchLinks, 60000)
+    }
+  </script>
 </body>
 
 </html>
