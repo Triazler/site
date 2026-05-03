@@ -132,11 +132,24 @@
 
     .SiteButton[disabled] {
       border-color: gray;
-      color: gray;
+      background-color: gray;
+      color: #555555;
+    }
+
+    .SiteButton[disabled] {
+      background-color: rgba(128, 128, 128, 0.5);
+    }
+
+    .SiteButton[disabled] {
+      filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+      zoom: 1;
     }
 
     .SiteButton[disabled] img {
-      filter: grayscale();
+      -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(grayscale=1)";
+      filter: url(#Grayscale);
+      -webkit-filter: grayscale(100%);
+      filter: grayscale(100%);
     }
 
     .SiteButton p {
@@ -208,10 +221,23 @@
         background-color: #00aa00;
       }
     }
+
+    noscript {
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
+  <svg style="display: none;">
+    <filter id="Grayscale">
+      <feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 
+              0.2126 0.7152 0.0722 0 0 
+              0.2126 0.7152 0.0722 0 0 
+              0 0 0 1 0" />
+    </filter>
+  </svg>
+  <noscript class="Section">JavaScript is required to load the website buttons.</noscript>
   <div class="Section" role="heading">
     <h1>The Trigons' Website Access</h1>
     <p>The page to access my local websites via temporary URLs.</p>
@@ -276,22 +302,26 @@
 
       function Complete(Fetched, Res) {
         var ErrTypeData = {
-          "1": {"Class": "Red", "Msg": "Failed to connect."},
-          "2": {"Class": "Red", "Msg": "Failed to update because of an internal error."},
-          "3": {"Class": "Yellow", "Msg": "Your browser does not support making HTTP requests."}
+          "1": { "Class": "Red", "Msg": "Failed to connect." },
+          "2": { "Class": "Red", "Msg": "Failed to update because of an internal error." },
+          "3": { "Class": "Yellow", "Msg": "Your browser does not support making HTTP requests." }
         }
 
         if (Fetched) {
           try {
             if (Res.OK) {
               var Data = JSON.parse(Res.Body)
-              alert(JSON.stringify(Data))
+
+              for (var Field in Data.fields) {
+                console.log(Field, Data.fields[Field])
+              }
+
               FetchStatus[TextProp] = "Fetched"
             } else {
               FetchStatus[TextProp] = "Fetched with error status " + Res.Status + (Res.StatusText ? " (" + Res.StatusText + ")" : "")
             }
           } catch (E) {
-            Complete(false, {"ErrType": 2, "Err": E})
+            Complete(false, { "ErrType": 2, "Err": E })
           }
         } else if (typeof Res === "object") {
           var ErrData = ErrTypeData[Res["ErrType"].toString()]
