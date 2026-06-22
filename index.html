@@ -125,7 +125,7 @@
       background-color: #666666;
       background-color: rgba(145, 145, 145, 1);
       padding: 12px 8px 8px 12px;
-    }   
+    }
 
     .SiteButton img {
       border-radius: 20px;
@@ -409,9 +409,13 @@
       NewHttpReq(URL, Complete)
     }
 
-    if (ReqMode) {
-      FetchLinks()
-      setInterval(FetchLinks, 60000)
+    window.onload = function () {
+      setTimeout(function () {
+        if (ReqMode) {
+          FetchLinks()
+          setInterval(FetchLinks, 60000)
+        }
+      }, 500)
     }
   </script>
 </body>
