@@ -360,7 +360,7 @@
                   var SiteStatus = SB.getElementsByTagName("p")[1]
                   var Thumbnail = SB.getElementsByTagName("img")[0]
 
-                  NewHttpReq(Str, function (Fetched, Res) {
+                  NewHttpReq(Str + "?get=test", function (Fetched, Res) {
                     Thumbnail.src = Thumbnail.getAttribute("src_" + (Fetched ? "online" : "offline"))
 
                     if (Fetched) {
