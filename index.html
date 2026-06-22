@@ -328,7 +328,7 @@
 
     function FetchLinks() {
       if (FetchingLinks) return;
-      var URL = "https://firestore.googleapis.com/v1/projects/tunnels-91750/databases/(default)/documents/Info/Links"
+      var URL = "https://firestore.googleapis.com/v1/projects/tunnels-91750/databases/(default)/documents/Links/"
 
       FetchingLinks = true
       FetchStatus[TextProp] = "Fetching..."
@@ -344,30 +344,29 @@
         if (Fetched) {
           try {
             if (Res.OK) {
-              var Data = JSON.parse(Res.Body)
+              var Docs = JSON.parse(Res.Body).documents
 
-              for (var Field in Data.fields) {
-                if (Data.fields.hasOwnProperty(Field)) {
-                  var FieldData = Data.fields[Field]
-                  if (typeof FieldData !== "object" || FieldData === null) continue;
-
-                  var Str = FieldData.stringValue
-                  if (typeof Str !== "string") continue;
-
-                  var SB = document.getElementById(Field)
-                  if (typeof SB !== "object") continue;
+              for (var i in Docs) {
+                if (Docs.hasOwnProperty(i)) {
+                  var Doc = Docs[i]
+                  var Fields = Doc.fields
+                  var URL = Fields.URL.stringValue
+                  var SiteName = Fields.Name.stringValue
+                  
+                  var SB = document.getElementById(SiteName)
+                  if (typeof SB !== "object" || SB === null) continue;
 
                   var SiteStatus = SB.getElementsByTagName("p")[1]
                   var Thumbnail = SB.getElementsByTagName("img")[0]
 
-                  NewHttpReq(Str + "?get=test", function (Fetched, Res) {
+                  NewHttpReq(URL + "?get=test", function (Fetched, Res) {
                     Thumbnail.src = Thumbnail.getAttribute("src_" + (Fetched ? "online" : "offline"))
 
                     if (Fetched) {
                       (function (Button, Addr) {
                         Button.removeAttribute("disabled")
                         Button.href = Addr
-                      })(SB, Str);
+                      })(SB, URL);
 
                       if (Res.OK) {
                         SiteStatus[TextProp] = "Online"
