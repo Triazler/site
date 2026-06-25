@@ -352,21 +352,21 @@
                   var Fields = Doc.fields
                   var URL = Fields.URL.stringValue
                   var SiteName = Fields.Name.stringValue
-                  
+
                   var SB = document.getElementById(SiteName)
                   if (typeof SB !== "object" || SB === null) continue;
 
                   var SiteStatus = SB.getElementsByTagName("p")[1]
                   var Thumbnail = SB.getElementsByTagName("img")[0]
 
+                  SiteStatus[TextProp] = "Fetching..."
                   NewHttpReq(URL + "?get=test", function (Fetched, Res) {
                     Thumbnail.src = Thumbnail.getAttribute("src_" + (Fetched ? "online" : "offline"))
 
                     if (Fetched) {
-                      (function (Button, Addr) {
-                        Button.removeAttribute("disabled")
-                        Button.href = Addr
-                      })(SB, URL);
+                      Button.removeAttribute("disabled")
+                      Button.href = Addr
+                      SB.onclick = null
 
                       if (Res.OK) {
                         SiteStatus[TextProp] = "Online"
@@ -377,6 +377,9 @@
                       SB.setAttribute("disabled", "")
                       SB.removeAttribute("href")
                       SiteStatus[TextProp] = "Offline"
+                      SB.onclick = function () {
+                        alert(Res)
+                      }
                     }
                   })
                 }
