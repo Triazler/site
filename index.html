@@ -378,7 +378,9 @@
                       SB.removeAttribute("href")
                       SiteStatus[TextProp] = "Offline"
                       SB.onclick = function () {
-                        alert(Res.Err)
+                        if (confirm("The website is offline but do you want to open the URL '" + URL + "' anyway?")) {
+                          location.href = URL
+                        }
                       }
                     }
                   })
